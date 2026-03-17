@@ -18,4 +18,5 @@ add_executable(INF155_TP1_NumberMatch_code
         INF155_TP1_NumberMatch_code/INF155_TP1_NumberMatch_code/utilitaires.cpp
         INF155_TP1_NumberMatch_code/INF155_TP1_NumberMatch_code/utilitaires.h
         INF155_TP1_NumberMatch_code/INF155_TP1_NumberMatch_code/WinConsole.cpp
-        INF155_TP1_NumberMatch_code/INF155_TP1_NumberMatch_code/WinConsole.h)
+        INF155_TP1_NumberMatch_code/INF155_TP1_NumberMatch_code/WinConsole.h
+        INF155_TP1_NumberMatch_code/INF155_TP1_NumberMatch_code/test_mandat1.cpp)
