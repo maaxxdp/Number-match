@@ -10,6 +10,8 @@ Auteur: Anis Boubaker et Eric Th�
 
 #ifndef UTILITAIRES_H
 #define UTILITAIRES_H
+#include <time.h>
+#include <stdlib.h>
 
 /*
 Fonction: init_rand
@@ -19,7 +21,10 @@ Description: Initialise le g�n�rateur al�atoire "rand()" selon l'heure de 
 Param�tres: aucun
 Retour: aucun
 */
-void init_rand(void);
+void init_rand(void) {
+    srand(time(NULL));
+}
+
 
 /*
 Fonction: reel_aleatoire
@@ -32,7 +37,9 @@ Retour: (r�el) nombre al�atoire entre min et max.
 Sp�cifications: on pr�sume que la fonction "init_rand()" � �t� appell�e une fois
                 avant d'utiliser cette fonction.
 */
-double reel_aleatoire(double min, double max);
+double reel_aleatoire(double min, double max) {
+    return min + (double)rand() / RAND_MAX * (max - min);
+}
 
 /*
 Fonction: entier_aleatoire
@@ -45,6 +52,8 @@ Retour: (entier) nombre al�atoire entre min et max.
 Sp�cifications: on pr�sume que la fonction "init_rand()" � �t� appell�e une fois
                 avant d'utiliser cette fonction.
 */
-int entier_aleatoire(int min, int max);
+int entier_aleatoire(int min, int max) {
+    return rand() % max + min;
+}
 
 #endif   //#if !UTILITAIRES_H
