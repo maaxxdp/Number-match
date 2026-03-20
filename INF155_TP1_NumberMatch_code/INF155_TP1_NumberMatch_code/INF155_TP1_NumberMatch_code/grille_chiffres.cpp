@@ -50,9 +50,18 @@ static void verifier_huit_dir(const t_grille_nos grille, int lig, int col,
 //La fonction est utilis�e lors de l'initialisation de la grille pour ne pas des chiffres.
 //PARAM.: Re�oit la grille, la position actuelle [lig, col] et le chiffre � v�rifier
 //RETOUR: 1 si le chiffre "ch" se trouve dans une cases voisine � [lig][col], 0 sinon.
-static int verifier_ch_voisins(t_grille_nos grille, int lig, int col, int ch) {   //*** SEM. 1
+static int verifier_ch_voisins(t_grille_nos grille, int lig, int col, int ch) {
+	//*** SEM. 1
 
+	for (int i = -1 ; i <= 1 ; i++) {
+		for (int j = -1 ; j <= 1 ; j++) {
+			if (i == 0 && j == 0)
+				continue;
 
+			if (grille [lig + i][col + j] == ch)
+				return 1;
+		}
+	}
 	return 0;    
 }
 
