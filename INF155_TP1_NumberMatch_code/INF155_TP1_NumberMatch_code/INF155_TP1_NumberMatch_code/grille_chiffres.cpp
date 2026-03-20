@@ -57,12 +57,16 @@ static int verifier_ch_voisins(t_grille_nos grille, int lig, int col, int ch) {
 		for (int j = -1 ; j <= 1 ; j++) {
 			if (i == 0 && j == 0)
 				continue;
+			int nbcol = col + j;
+
+			if (nbcol == 0)//permet d'ignorer la colone [0] car elle ne fait pas partie des valeurs a vérifier
+				continue;
 
 			if (grille [lig + i][col + j] == ch)
-				return 1;
+				return 0; // retourne 0 si trouve
 		}
 	}
-	return 0;    
+	return 1;  //retourne 1 si pas trouve
 }
 
 /**************** D�FINITION DES FONCTIONS PUBLIQUES *****************/
@@ -70,6 +74,44 @@ static int verifier_ch_voisins(t_grille_nos grille, int lig, int col, int ch) {
 //re�oit une grille vide et g�n�re les premieres lignes de chiffres alea.
 int init_grille(t_grille_nos grille, t_tab_chiffres nbr_chiffres) {       //*** SEM. 1
 
+	double facteur = (4.0 + (double)rand() /RAND_MAX * 5.0 - 4.0);
+	int nb_chiffre_genere = (int)(facteur * 9);
+
+	if (nb_chiffre_genere % 2 != 0) { //si numero impair, ajoute 1 a ce dernier
+		nb_chiffre_genere++;
+	}
+
+	int ligne = 0;
+	int colone = 1;
+
+	for (int i = nb_chiffre_genere ; i > 0 ; i--) {//assure de generer le bon nombre de numeros
+
+		int chiffre;
+
+		do {
+			int chiffre = entier_aleatoire(1,9);//genere un numero aleatoire entre 1 et 9
+		} while (verifier_ch_voisins(grille, ligne, colone,chiffre) == 0);
+
+		grille [ligne][colone] = chiffre;
+
+		INC_POS(ligne, colone);
+
+
+
+
+		//*for (int j = 1; j <= MAX_LIG ; j++ ) {// j = ligne
+		//	for (int k = 0; k <= NB_COL ; k++) {// k = colone
+		//
+		//		int chiffre = entier_aleatoire(1,9);//genere un numero aleatoire entre 1 et 9
+		//		grille [j][k] = chiffre;
+		//
+		//		while (1 == verifier_ch_voisins(grille, j, k, chiffre)) {
+		//			int chiffre = entier_aleatoire(1,9);//genere un numero aleatoire entre 1 et 9
+		//			grille [j][k] = chiffre;
+		//		}
+		//	}
+		//}
+	}
 
 	return 0;	 
 }
