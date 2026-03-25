@@ -9,6 +9,9 @@
 #include "WinConsole.h"     //NOTE: ne doit PAS �tre inclus nullepart ailleurs dans le projet!
 #include "affichages.h"
 
+#include <cmath>
+#include <windows.h>
+
 #define CH_MAX  9           //le chiffre maximal � afficher
 
 /********** � FAIRE: les 4 premi�res fonctions (jusqu'� la lig. 100) *********/
@@ -46,13 +49,51 @@ void afficher_instructions() {
 /*****************************************************************************/
 //Permet d'afficher la liste des chiffres dispo (sur la ligne 0) et du score (sur la ligne 1).
 void afficher_infos_jeu(const t_tab_chiffres nbr_chiffres, int pts) {
-   
+   clrscr();
+
+    gotoxy(COL_GRILLE + 13, LIG_POINTS);
+        printf("Score: %d", pts);
+
+    gotoxy(COL_GRILLE, LIG_CHIFFRES);
+        printf("Chiffres: ");
+        for (int i = 1; i <= CH_MAX; i++) {
+            if (nbr_chiffres[i] == 0) {
+                printf("  ");
+            }else {
+                printf("%d ",nbr_chiffres[i]);
+            }
+        }
 }
 
 /*****************************************************************************/
 //Permet d'afficher la grille des chiffres
 void afficher_grille(const t_grille_nos grille, int dern_lig) {
-    
+    int ligne = 0;
+    int colone = 0;
+
+    textcolor(YELLOW);
+    gotoxy(COL_GRILLE + 4, LIG_GRILLE);
+    for (int i = colone ; i < NB_COL ; i++) {
+        printf(" %c ", 'A' + i);
+    }
+
+    for (int i = ligne ; i <= dern_lig ; i++) {
+        textcolor(YELLOW);
+        gotoxy(COL_GRILLE, LIG_GRILLE + ligne + 1 );
+        printf(" %d", ligne + 1);
+
+
+
+        for (int j = 1 ; colone < NB_COL ; colone ++) {
+            textcolor(WHITE);
+            if (grille [ligne][colone] != 0) {
+                printf(" %d", grille [ligne][colone]);
+            }else {
+                printf("  ");
+            }
+
+        }
+    }
 }
 
 /*****************************************************************************/
