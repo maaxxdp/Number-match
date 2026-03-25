@@ -74,46 +74,44 @@ static int verifier_ch_voisins(t_grille_nos grille, int lig, int col, int ch) {
 //re�oit une grille vide et g�n�re les premieres lignes de chiffres alea.
 int init_grille(t_grille_nos grille, t_tab_chiffres nbr_chiffres) {       //*** SEM. 1
 
-	double facteur = (4.0 + (double)rand() /RAND_MAX * 5.0 - 4.0);
+	double facteur = 4 + ((double)rand() /RAND_MAX);
 	int nb_chiffre_genere = (int)(facteur * 9);
+	int ligne = 0;
+	int colone = 1;
+	int chiffre;
 
 	if (nb_chiffre_genere % 2 != 0) { //si numero impair, ajoute 1 a ce dernier
 		nb_chiffre_genere++;
 	}
-
-	int ligne = 0;
-	int colone = 1;
-
 	for (int i = nb_chiffre_genere ; i > 0 ; i--) {//assure de generer le bon nombre de numeros
-
-		int chiffre;
-
 		do {
-			int chiffre = entier_aleatoire(1,9);//genere un numero aleatoire entre 1 et 9
+			chiffre = entier_aleatoire(1,9);//genere un numero aleatoire entre 1 et 9
 		} while (verifier_ch_voisins(grille, ligne, colone,chiffre) == 0);
 
+		if (nbr_chiffres[chiffre] == 0) {
+			nbr_chiffres[POS_NB]++;
+		}
+
+		nbr_chiffres[chiffre]++;
+
 		grille [ligne][colone] = chiffre;
+		grille [ligne][POS_NB]++;
 
-		INC_POS(ligne, colone);
+		INC_POS(ligne,colone);
+
+	for (int i = 1; 1 <= 9 ; i++) {
+		if (nbr_chiffres[i] == 0) {// si le chiffre i n'a pas ete genere
+			nbr_chiffres[POS_NB]++;
+			nbr_chiffres[i]++;
+			grille [ligne][colone] = i;//ajoute le numero i dans la case
+			grille [ligne][POS_NB]++;//augment compte numero sur la ligne
+			INC_POS(ligne,colone);
 
 
-
-
-		//*for (int j = 1; j <= MAX_LIG ; j++ ) {// j = ligne
-		//	for (int k = 0; k <= NB_COL ; k++) {// k = colone
-		//
-		//		int chiffre = entier_aleatoire(1,9);//genere un numero aleatoire entre 1 et 9
-		//		grille [j][k] = chiffre;
-		//
-		//		while (1 == verifier_ch_voisins(grille, j, k, chiffre)) {
-		//			int chiffre = entier_aleatoire(1,9);//genere un numero aleatoire entre 1 et 9
-		//			grille [j][k] = chiffre;
-		//		}
-		//	}
-		//}
+		}
 	}
 
-	return 0;	 
+	return ligne;
 }
 
 /*****************************************************************************/

@@ -21,9 +21,8 @@ Description: Initialise le gï¿½nï¿½rateur alï¿½atoire "rand()" selon l'heure de 
 Paramï¿½tres: aucun
 Retour: aucun
 */
-void init_rand(void) {
-    srand(time(NULL));
-}
+void init_rand(void);
+
 
 
 /*
@@ -37,9 +36,8 @@ Retour: (rï¿½el) nombre alï¿½atoire entre min et max.
 Spï¿½cifications: on prï¿½sume que la fonction "init_rand()" ï¿½ ï¿½tï¿½ appellï¿½e une fois
                 avant d'utiliser cette fonction.
 */
-double reel_aleatoire(double min, double max) {
-    return min + (double)rand() / RAND_MAX * (max - min);
-}
+double reel_aleatoire(double min, double max);
+
 
 /*
 Fonction: entier_aleatoire
@@ -53,7 +51,6 @@ Spï¿½cifications: on prï¿½sume que la fonction "init_rand()" ï¿½ ï¿½tï¿½ appellï
                 avant d'utiliser cette fonction.
 */
 int entier_aleatoire(int min, int max) {
-    return rand() % max + min;
 }
 
 #endif   //#if !UTILITAIRES_H
