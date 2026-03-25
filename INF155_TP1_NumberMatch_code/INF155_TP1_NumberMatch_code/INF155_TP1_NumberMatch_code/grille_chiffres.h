@@ -55,6 +55,7 @@ typedef int t_tab_chiffres[NB_COL];
 //RETOUR: l'indice de la derni�re ligne avec au moins un chiffre apr�s l'initialisation
 int init_grille(t_grille_nos grille, t_tab_chiffres nbr_chiffres);
 
+
 //Permet de g�n�rer la liste de tous les coups (couples) possibles � jouer.
 //PARAM.: la grille de jeu et la listes des coups possibles � remplir
 //RETOUR: Le nombre de couples possibles r�pertori�s pour le prochain coup � jouer

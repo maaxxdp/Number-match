@@ -50,10 +50,23 @@ static void verifier_huit_dir(const t_grille_nos grille, int lig, int col,
 //La fonction est utilis�e lors de l'initialisation de la grille pour ne pas des chiffres.
 //PARAM.: Re�oit la grille, la position actuelle [lig, col] et le chiffre � v�rifier
 //RETOUR: 1 si le chiffre "ch" se trouve dans une cases voisine � [lig][col], 0 sinon.
-static int verifier_ch_voisins(t_grille_nos grille, int lig, int col, int ch) {   //*** SEM. 1
+static int verifier_ch_voisins(t_grille_nos grille, int lig, int col, int ch) {
+	//*** SEM. 1
 
+	for (int i = -1 ; i <= 1 ; i++) {
+		for (int j = -1 ; j <= 1 ; j++) {
+			if (i == 0 && j == 0)
+				continue;
+			int nbcol = col + j;
 
-	return 0;    
+			if (nbcol == 0)//permet d'ignorer la colone [0] car elle ne fait pas partie des valeurs a vérifier
+				continue;
+
+			if (grille [lig + i][col + j] == ch)
+				return 0; // retourne 0 si trouve
+		}
+	}
+	return 1;  //retourne 1 si pas trouve
 }
 
 /**************** D�FINITION DES FONCTIONS PUBLIQUES *****************/
@@ -61,8 +74,44 @@ static int verifier_ch_voisins(t_grille_nos grille, int lig, int col, int ch) { 
 //re�oit une grille vide et g�n�re les premieres lignes de chiffres alea.
 int init_grille(t_grille_nos grille, t_tab_chiffres nbr_chiffres) {       //*** SEM. 1
 
+	double facteur = 4 + ((double)rand() /RAND_MAX);
+	int nb_chiffre_genere = (int)(facteur * 9);
+	int ligne = 0;
+	int colone = 1;
+	int chiffre;
 
-	return 0;	 
+	if (nb_chiffre_genere % 2 != 0) { //si numero impair, ajoute 1 a ce dernier
+		nb_chiffre_genere++;
+	}
+	for (int i = nb_chiffre_genere ; i > 0 ; i--) {//assure de generer le bon nombre de numeros
+		do {
+			chiffre = entier_aleatoire(1,9);//genere un numero aleatoire entre 1 et 9
+		} while (verifier_ch_voisins(grille, ligne, colone,chiffre) == 0);
+
+		if (nbr_chiffres[chiffre] == 0) {
+			nbr_chiffres[POS_NB]++;
+		}
+
+		nbr_chiffres[chiffre]++;
+
+		grille [ligne][colone] = chiffre;
+		grille [ligne][POS_NB]++;
+
+		INC_POS(ligne,colone);
+
+	for (int i = 1; 1 <= 9 ; i++) {
+		if (nbr_chiffres[i] == 0) {// si le chiffre i n'a pas ete genere
+			nbr_chiffres[POS_NB]++;
+			nbr_chiffres[i]++;
+			grille [ligne][colone] = i;//ajoute le numero i dans la case
+			grille [ligne][POS_NB]++;//augment compte numero sur la ligne
+			INC_POS(ligne,colone);
+
+
+		}
+	}
+
+	return ligne;
 }
 
 /*****************************************************************************/

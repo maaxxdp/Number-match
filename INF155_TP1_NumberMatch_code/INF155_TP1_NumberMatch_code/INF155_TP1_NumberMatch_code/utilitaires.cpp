@@ -14,9 +14,8 @@ Auteur: Anis Boubaker et Eric Th�
 
 /*---------------------- init_rand() -------------------------------*/
 //initialise le g�n�rateur al�atoire "rand()" selon l'heure de l'ordi.
-void init_rand(void)
-{
-	
+void init_rand(void){
+	srand(time(NULL));
 }
 
 /*--------------------- reel_aleatoire() ------------------------------*/
@@ -28,11 +27,11 @@ double reel_aleatoire(double min, double max)
 		x * (max - min)                E  [0, max - min
 		min + x * (max - min)          E  [min, max[
 	*/
-	return 0;
+	return min + (double)rand() / (RAND_MAX * (max - min));
 }
 
 /*--------------------- entier_aleatoire() ------------------------------*/
 /* Fonction al�atoire qui renvoie un entier inclu entre [min..max]. */
 int entier_aleatoire(int min, int max) {
-	return 0;
+	return rand() % max + min;
 }
