@@ -21,6 +21,27 @@ const int dep[8][2] = { {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1,-1}, {0,-1}
 //PARAM.: la grille de jeu et deux r�f�rences � la position de fin de grille
 //RETOUR: aucun, mais la position de reg�n�ration de chiffres est retourn� dans les r�f�rences
 static void trouver_fin_chiffres(const t_grille_nos grille, int * lig, int * col) { 
+
+	int nb_trouves = 0; // Compteur de nombres trouves initialise a zero
+	*col = 1; // Compteur de nombre de colonne initialise a un car les chiffres 
+		// de la colonne 0 ne sont pas affiches a l'ecran
+	
+	/*Tant qu'on est dans l'intervalle de colonnes valide et qu'on n'a pas trouve 
+	tout les chiffres de la ligne, la boucle continue*/
+	while (*col < NB_COL && nb_trouves < grille [*lig][POS_NB]){
+		// Si la case contient un chiffre, +1 dans compteur nb_trouves.
+		if (grille[*lig][*col] != 0) {
+			nb_trouves++;
+		}
+		// +1 pour passer a la colonne suivante lors de la reprise de la boucle 
+		(*col)++;
+	}
+	
+	// Lorsqu'on atteint la fin de la ligne, la prochaine case vide est sur la ligne suivante
+	if (*col == NB_COL){
+		(*lig)++; // +1 au compteur de ligne pour passer a la prochaine ligne
+		*col =1;
+	}
 	
 }
 
