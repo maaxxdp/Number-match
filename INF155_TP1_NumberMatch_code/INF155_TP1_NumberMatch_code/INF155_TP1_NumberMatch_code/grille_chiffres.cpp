@@ -165,33 +165,49 @@ void ajouter_chiffres(t_grille_nos grille, t_tab_chiffres nbr_chiffres, int* der
 
 /*****************************************************************************/
 //permet de retirer la ligne vide [no_lig] de la grille des chiffres.
-//Les lignes suivantes seront toutes recopi�e UNE ligne plus haut pour
+//Les lignes suivantes seront toutes recopiée UNE ligne plus haut pour
 //remplir l'espace vide.
-void retirer_ligne(t_grille_nos grille, int no_lig) {						//*** SEM. 2
+void retirer_ligne(t_grille_nos grille, int no_lig) {						
+	int lig = no_lig;	//la ligne à retirer
 
+	do {
+		for (int col = 0; col < NB_COL; col++)
+			//copie de la ligne suivante si elle existe (copie de 0 sinon)
+			grille[lig][col] = ((lig + 1) < MAX_LIG) ? grille[lig + 1][col] : 0;
+
+		lig++;
+	} while (lig < MAX_LIG && grille[lig][POS_NB]);   //tant que les lignes sont NON-vides
 }
 
 /*****************************************************************************/
-//Permet d'effacer (mettre � z�ro) la case "pos" de la grille de jeu.
-void effacer_chiffre(t_grille_nos grille, int pos) {						//*** SEM. 2
-	
+//Permet d'effacer (mettre à zéro) la case "pos" de la grille de jeu.
+void effacer_chiffre(t_grille_nos grille, int pos) {						
+	grille[pos / 10][pos % 10] = 0; //avec conversions de la position-linéaire
+	grille[pos / 10][POS_NB]--;     //un chiffre de moins sur cette ligne
 }
 
 /*****************************************************************************/
-//Permet de retirer (mettre � z�ro) le chiffre "ch" de la liste des chiffres dispos.
-int retirer_chiffre(int ch, t_tab_chiffres nbr_chiffres) {					//*** SEM. 2
+//Permet de retirer (mettre à zéro) le chiffre "ch" de la liste des chiffres dispos.
+int retirer_chiffre(int ch, t_tab_chiffres nbr_chiffres) {					
+	/* on compte un chiffre de moins pour 'ch' dans la liste */
+	nbr_chiffres[ch]--;
 
-	return 0;   //aucun chiffre a �t� �limin�
+	/* si ce compteur tombe à zéro le chiffre est éliminé du jeu */
+	if (!nbr_chiffres[ch]) {
+		nbr_chiffres[POS_NB]--;   //un chiffre d'éliminé!
+		return ch;                //on retourne le chiffre qui vient d'être éliminé
+	}
+	return 0;   //aucun chiffre a été éliminé
 }
 
 /*****************************************************************************/
-//Accesseur au chiffre se trouvant � la case "no_case" de la grille.
-int get_chiffre_case(const t_grille_nos grille, int no_case) {				//*** SEM. 2
-	return 0;   //avec conversions de la position-lin�aire
+//Accesseur au chiffre se trouvant à la case "no_case" de la grille.
+int get_chiffre_case(const t_grille_nos grille, int no_case) {				
+	return grille[no_case / 10][no_case % 10];   //avec conversions de la position-linéaire
 }
 
 /*****************************************************************************/
 //Accesseur au nb. de chiffres restants dans le jeu (la case [0] du tableau).
-int nb_chiffres_restants(const t_tab_chiffres nbr_chiffres) {				//*** SEM. 2
-	return 0;
+int nb_chiffres_restants(const t_tab_chiffres nbr_chiffres) {				
+	return nbr_chiffres[POS_NB];
 }
