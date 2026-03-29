@@ -23,9 +23,90 @@
 //Effectue la saisie ET validation d'une case valide OU d'un code-commande.
 //PARAM.: l'indice de la derni�re ligne active et le num�ro de la saisie (eg. 1 ou 2)
 //RETOUR: un num�ro de case valide (eg. 24) OU un des 3 codes-commandes (0, -1, -2)
-static int saisie_case(int dern_lig, int no) {
-   
-    return 0;       //on retourne le num�ro de case ainsi form�
+static int saisie_case(int dern_lig, int no){
+	
+    char saisie[10];
+    int ligne;
+    int colonne;
+    int position_finale = 0;
+
+// Tant que la saisie n'est pas valide, on reste dans la boucle
+    while (position_finale == 0){
+
+       // Demander la saisie d'une case a l'utilisateur
+        demander_saisie(no);
+        scanf("%s", saisie);
+
+       // Si la chaine est soit "XX", "??" ou "++", on retourne les codes qui leur sont associes.
+        if (strcmp(saisie, "XX") == 0 || strcmp(saisie, "xx") == 0)
+            return CODE_QUITTER;
+
+        if (strcmp(saisie, "??") == 0)
+            return CODE_AIDE;
+
+        if (strcmp(saisie, "++") == 0)
+            return CODE_CHIFFRES;
+
+       // Verifier que la longueur de la saisie est soit de 2 caracteres soit 3 caracteres.
+        if (strlen(saisie) != 2 && strlen(saisie) != 3) {       	
+            mess_erreur("Saisie invalide");
+        }
+        else {	
+            colonne = toupper(saisie[0]); // S'assurer que la lettre saisie est en majuscule
+           
+           // Verifier que la colonne entree est entre "A" et "I"
+            if (colonne < 'A' || colonne > 'I') {        
+                mess_erreur("Colonne invalide");
+            }
+            else {
+               // Verifier que le deuxieme caractere saisi est un chiffre
+                if (saisie[1] < '0' || saisie[1] > '9') {
+                    mess_erreur("Ligne invalide");
+                }
+                else {                	
+                    ligne = CHIFFRE_A_VAL(saisie[1]);
+                    
+	                 // Si on a 3 caracteres saisis
+                    if (strlen(saisie) == 3) {
+                    	
+                    	// Verifier que le troisieme caractere saisi est un chiffre
+                      if (saisie[2] < '0' || saisie[2] > '9') {
+                      	
+                         mess_erreur("Ligne invalide");
+                      } 
+	                   else {
+                            // Construit le nombre complet : 1 et 2 -> 12
+                            ligne = ligne * 10 + CHIFFRE_A_VAL(saisie[2]);
+                            ligne = ligne - 1; // ligne - 1 car l'index commence a 0 et non 1
+		
+                           // Verifier que la ligne existe dans la grille
+                            if (ligne < 0 || ligne > dern_lig) {
+                                mess_erreur("Numero de ligne invalide");
+                            } 
+		                      else {
+                                // Trouve la position finale: ligne + colonne
+                                position_finale = ligne * 10 + LETTRE_A_COL(colonne);
+                            }
+                        }
+                    }
+                    // Cas d'une ligne a un seul chiffre
+                    else {
+                         ligne = ligne - 1;
+                       
+		               // Verifier que la ligne existe dans la grille
+                        if (ligne < 0 || ligne > dern_lig) {
+                            mess_erreur("Numero de ligne invalide");
+                        }
+                        else {
+                            // Trouver la position finale: ligne + colonne                        	
+                            position_finale = ligne * 10 + LETTRE_A_COL(colonne);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return position_finale;
 }
 
 /******************** D�FINITION DES FONCTIONS PUBLIQUES *********************/
@@ -33,6 +114,37 @@ static int saisie_case(int dern_lig, int no) {
 //Effectue la saisie du coup valide (deux cases) OU d'un code-commande (dans "caseA").
 int valider_coup(t_liste_couples liste, int dern_lig, int* caseA, int* caseB) {
    
+    int valide = 0;
+    int nb;
+
+    do {
+        // Demander la saisie de la premiere case.
+        *caseA = saisie_case(dern_lig, 1);
+
+        // Si un code recu, quitter la fonction.
+        if (*caseA == CODE_QUITTER || *caseA == CODE_AIDE || *caseA == CODE_CHIFFRES)
+            return 0;
+
+        // Demander la saisie de la deuxieme case
+        *caseB = saisie_case(dern_lig, 2);
+
+        // Verifier si couple existe dans la liste
+        valide = 0;
+        nb = liste[LIG_INFOS][COL_NBELEM];
+
+        for (int i = 1; i <= nb; i++) {
+            if (liste[i][0] == *caseA && liste[i][1] == *caseB) {           	
+                valide = 1;
+                break;
+            }
+        }
+        
+        // Message d'erreur si le couple n'est pas dans la liste
+        if (!valide) {        	
+            mess_erreur("Coup non valide !");
+        }
+    } while (!valide);
+    
     return 1;   //le coup (caseA, caseB) est valide
 }
 
@@ -43,8 +155,65 @@ int valider_coup(t_liste_couples liste, int dern_lig, int* caseA, int* caseB) {
 int jouer_coup(t_grille_nos grille, int caseA, int caseB, t_tab_chiffres nbr_chiffres,
                int * dern_lig) {
    
+    int points = 0;
+    int pts_lignes = 0;
+    int ch, elimine;
 
-    return 0;     //on retourne les points obtenus
+    // Vérifier si les deux cases sont collees pour +1pts ou separee pour +4pts
+    if (abs(caseA - caseB) == 1) {
+        points += PTS_COUPLE_VOISIN;
+        mess_points("+1 point");
+    } else {
+        points += PTS_COUPLE_SEPARE;
+        mess_points("+4 points");
+    }
+
+    // Retirer le chiffre de la case A dans la liste des chiffres disponibles
+        ch = get_chiffre_case(grille, caseA);
+        elimine = retirer_chiffre(ch, nbr_chiffres);     
+        if (elimine != 0) {
+            mess_points("Chiffre elimine !");
+        }        
+        effacer_chiffre(grille, caseA);
+
+    // Retirer le chiffre de la case B dans la liste des chiffres disponibles
+        ch = get_chiffre_case(grille, caseB);
+        elimine = retirer_chiffre(ch, nbr_chiffres);       
+        if (elimine != 0) {
+            mess_points("Chiffre elimine !");
+        }      
+        effacer_chiffre(grille, caseB);
+    
+    // Arranger les cases A et B en ordre decroissant
+    if (caseA < caseB) {    	
+        int tmp = caseA;
+        caseA = caseB;
+        caseB = tmp;        
+    }
+
+    // Verifier si la ligne de la case A est vide   
+    int ligA = caseA / 10;
+   
+    if (grille[ligA][0] == 0) {    	
+        retirer_ligne(grille, ligA);
+        pts_lignes += PTS_LIGNE_RETIREE;
+        (*dern_lig)--;       
+    }
+
+    // Verifier si la ligne de la case B est vide et différente de la case A 
+    int ligB = caseB / 10;
+   
+    if (ligB != ligA && grille[ligB][0] == 0) {
+        retirer_ligne(grille, ligB);
+        pts_lignes += PTS_LIGNE_RETIREE;
+        (*dern_lig)--;   
+    }
+
+    // Si des lignes ont ete retiree, on affiche un message.
+    if (pts_lignes > 0) {
+        mess_points("Bonus lignes !");
+    }
+    return points + pts_lignes; //on retourne les points obtenus
 }
 
 /*****************************************************************************/
