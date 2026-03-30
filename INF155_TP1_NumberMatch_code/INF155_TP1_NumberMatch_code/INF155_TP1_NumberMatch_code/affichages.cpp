@@ -46,13 +46,43 @@ void afficher_instructions() {
 /*****************************************************************************/
 //Permet d'afficher la liste des chiffres dispo (sur la ligne 0) et du score (sur la ligne 1).
 void afficher_infos_jeu(const t_tab_chiffres nbr_chiffres, int pts) {
-   
+    clrscr();       //effacer l'�cran
+
+    /* afficher le score � date */
+    gotoxy(COL_GRILLE + 8, LIG_POINTS);  printf("Score: %d", pts);
+
+    /* affichage des chiffres dispos */
+    gotoxy(COL_GRILLE, LIG_CHIFFRES);    printf("Chiffres: ");
+    for (int i = 1; i <= CH_MAX; i++)
+        printf("%c ", nbr_chiffres[i] ? ('0' + i) : ' ');  //vide si le chiffre est absent
 }
 
 /*****************************************************************************/
 //Permet d'afficher la grille des chiffres
 void afficher_grille(const t_grille_nos grille, int dern_lig) {
-    
+    void afficher_grille(const t_grille_nos grille, int dern_lig) {
+        int lig = 0, col;   //la position actuelle
+
+        /* les en-t�tes des colonnes */
+        textcolor(YELLOW);
+        gotoxy(COL_GRILLE + 4, LIG_GRILLE);
+        for (col = 0; col < NB_COL - 1; col++)
+            printf(" %c", 'A' + col);    //'A', 'B', 'C', ...etc.
+
+        /* affichage de la grille tant que les lignes ont des chiffres */
+        for (lig = 0; lig <= dern_lig; lig++) {
+            textcolor(YELLOW);
+            gotoxy(COL_GRILLE, LIG_GRILLE + lig + 1);
+            printf(" %2d ", lig + 1);           //le no. de la ligne � la gauche des chiffres
+            textcolor(WHITE);
+
+            //afficher tous les chiffres de cette ligne (colonnes [1] � [9])
+            for (col = 1; col < NB_COL; col++)
+                if (grille[lig][col])
+                    printf(" %d", grille[lig][col]);  //chaque case occuppe 2 ESPACES-�cran!
+                else printf("  ");                     //ne pas afficher les cases vides (= 0)
+        }
+    }
 }
 
 /*****************************************************************************/

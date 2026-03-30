@@ -21,28 +21,20 @@ const int dep[8][2] = { {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1,-1}, {0,-1}
 //PARAM.: la grille de jeu et deux r�f�rences � la position de fin de grille
 //RETOUR: aucun, mais la position de reg�n�ration de chiffres est retourn� dans les r�f�rences
 static void trouver_fin_chiffres(const t_grille_nos grille, int * lig, int * col) { 
+	int nb = 0;		//compteur du nb. de chiffres pr�sents � la derni�re lignes de la grille
 
-	int nb_trouves = 0; // Compteur de nombres trouves initialise a zero
-	*col = 1; // Compteur de nombre de colonne initialise a un car les chiffres 
-		// de la colonne 0 ne sont pas affiches a l'ecran
-	
-	/*Tant qu'on est dans l'intervalle de colonnes valide et qu'on n'a pas trouve 
-	tout les chiffres de la ligne, la boucle continue*/
-	while (*col < NB_COL && nb_trouves < grille [*lig][POS_NB]){
-		// Si la case contient un chiffre, +1 dans compteur nb_trouves.
-		if (grille[*lig][*col] != 0) {
-			nb_trouves++;
-		}
-		// +1 pour passer a la colonne suivante lors de la reprise de la boucle 
-		(*col)++;
+	*col = 1;		//la colonne [0] n'est pas un chiffre de la grille!
+
+	while (nb < grille[*lig][POS_NB]) {   //tant que l'on a pas vu tous les chiffres de la lig
+		if (grille[*lig][*col])  nb++;	  //on compte les chiffres rencontr�s
+
+		(*col)++;   //avancer la colonne pour trouver la case vide apr�s le dernier chiffre
 	}
-	
-	// Lorsqu'on atteint la fin de la ligne, la prochaine case vide est sur la ligne suivante
-	if (*col == NB_COL){
-		(*lig)++; // +1 au compteur de ligne pour passer a la prochaine ligne
-		*col =1;
+
+	//cas sp�cial: le dernier chiffre se trouve dans la derni�re colonne de cette ligne
+	if (*col == NB_COL) {
+		(*lig)++;  *col = 1;   //passer � la premi�re case de la ligne suivante!
 	}
-	
 }
 
 /*****************************************************************************/
@@ -53,7 +45,25 @@ static void trouver_fin_chiffres(const t_grille_nos grille, int * lig, int * col
 //RETOUR: Aucun
 static void verifier_sens_est(const t_grille_nos grille, int lig, int col,
 	                          t_liste_couples liste) {						//*** SEM. 2
+	int val1 = grille[lig][col];	//le chiffre dans cette case
+	int	val2 = 0;					//le prochain chiffre
+	int lig2 = lig, col2 = col;		//copies de la position actuelle (pour les d�placements)
 
+	do {
+		//avancer vers la droite avec potentiel changement de ligne lorsque rendu au bout
+		INC_POS(lig2, col2);
+
+	  //tant que l'on est dans la grille et que les cases rencontr�es sont VIDES (= 0)
+	} while (lig2 < MAX_LIG && !grille[lig2][col2]);
+
+	if (lig2 < MAX_LIG)
+	   val2 = grille[lig2][col2];	//le chiffre de la premi�re case non-vide rencontr�e
+
+	//est-ce un couple valide qui n'est pas d�j� dans la liste?
+	if ((val1 == val2 || (val1 + val2 == 10)) &&
+		!liste_contient(liste, lig * 10 + col, lig2 * 10 + col2)){   //avec conversion de pos.
+		   assert(ajouter_couple(liste, lig * 10 + col, lig2 * 10 + col2));  //ajout du couple
+	}
 }
 
 /*****************************************************************************/
@@ -63,7 +73,40 @@ static void verifier_sens_est(const t_grille_nos grille, int lig, int col,
 //RETOUR: Aucun, mais la liste des coups possibles sera potentiellement augment�e
 static void verifier_huit_dir(const t_grille_nos grille, int lig, int col,
 	                          t_liste_couples liste) {						//*** SEM. 2
+	int lig2, col2;  //copies de la position actuelle (pour les d�placements)
+	int val1, val2;  //valeurs des deux cases � comparer
 
+	val1 = grille[lig][col];	//chiffre de la case actuelle
+
+	/* pour les 8 directions possibles.. */
+	for (int dir = 0; dir < 8; dir++) {
+		//Cas sp�cial: aller vers la droite (avec possible retour � la ligne suivante)
+		if (dir == 2)
+			verifier_sens_est(grille, lig, col, liste);
+		else {
+			//Pour toutes les autres directions..
+			lig2 = lig;  col2 = col;		//reprendre une copie de la position actuelle
+			do {
+				//appliquer le d�placement dans la direction "dir" (avec le tableau "dep[][]")
+				lig2 += dep[dir][0];		//le delta-y
+				col2 += dep[dir][1];		//le delta-x
+
+			  //tant que l'on est toujours dans la grille de jeu (avec col >= 1)
+			} while (lig2 >= 0 && grille[lig2][POS_NB] && col2 >= 1 && col2 < NB_COL
+				     && !grille[lig2][col2]);   //..et que les cases rencontr�es sont VIDES
+
+			//si nous avons atteint une deuxi�me case valide et non-vide..
+			if (lig2 >= 0 && grille[lig2][POS_NB] && col2 >= 1 && col2 < NB_COL) {
+				val2 = grille[lig2][col2];	//le deuxi�me chiffre
+
+				//est-ce un couple valide qui n'est pas d�j� dans la liste?
+				if ((val1 == val2 || (val1 + val2 == 10))
+					&& !liste_contient(liste, lig * 10 + col, lig2 * 10 + col2)) {
+					   assert(ajouter_couple(liste, lig * 10 + col, lig2 * 10 + col2));
+				}
+			}
+		}
+	}
 }
 
 /*****************************************************************************/
@@ -71,76 +114,89 @@ static void verifier_huit_dir(const t_grille_nos grille, int lig, int col,
 //La fonction est utilis�e lors de l'initialisation de la grille pour ne pas des chiffres.
 //PARAM.: Re�oit la grille, la position actuelle [lig, col] et le chiffre � v�rifier
 //RETOUR: 1 si le chiffre "ch" se trouve dans une cases voisine � [lig][col], 0 sinon.
-static int verifier_ch_voisins(t_grille_nos grille, int lig, int col, int ch) {
-	//*** SEM. 1
+static int verifier_8_voisins(t_grille_nos grille, int lig, int col, int ch) {   //*** SEM. 1
+	int lig2, col2;		//copies de la position actuelle (pour les d�placements)
 
-	for (int i = -1 ; i <= 1 ; i++) {
-		for (int j = -1 ; j <= 1 ; j++) {
-			if (i == 0 && j == 0)
-				continue;
-			int nbcol = col + j;
+	/* pour les 8 directions possibles.. */
+	for (int dir = 0; dir < 8; dir++) {
+		//appliquer le d�placement dans la direction "dir" (avec le tableau "dep[][]")
+		lig2 = lig + dep[dir][0];
+		col2 = col + dep[dir][1];
 
-			if (nbcol == 0)//permet d'ignorer la colone [0] car elle ne fait pas partie des valeurs a vérifier
-				continue;
-
-			if (grille [lig + i][col + j] == ch)
-				return 0; // retourne 0 si trouve
-		}
+		//si on est toujours dans la grille de jeu (avec col >= 1) et que le chiffre est l�
+		if (lig2 >= 0 && lig2 < MAX_LIG && col2 >= 1 && col2 < NB_COL
+			&& grille[lig2][col2] == ch)
+			   return 1;		//le chiffre "ch" est pr�sent
 	}
-	return 1;  //retourne 1 si pas trouve
+
+	return 0;    //ce chiffre ne se trouve pas autour de la case [lig][col]
 }
 
 /**************** D�FINITION DES FONCTIONS PUBLIQUES *****************/
 
 //re�oit une grille vide et g�n�re les premieres lignes de chiffres alea.
 int init_grille(t_grille_nos grille, t_tab_chiffres nbr_chiffres) {       //*** SEM. 1
-
-	double facteur = 4 + ((double)rand() /RAND_MAX);
-	int nb_chiffre_genere = (int)(facteur * 9);
-	int ligne = 0;
-	int colone = 1;
+	double facteur = reel_aleatoire(MAX_NB_NEW-1, MAX_NB_NEW);   //facteur entre [4.0, 5.0]
+	int nb_ch = (int)(facteur * 9); //le nb. de chiffres � g�n�rer selon le facteur choisi
 	int chiffre;
+	int lig = 0, col = 1;			//la position actuelle (avec col >= 1)
+	int i = 0;						//compteur du nb. de chiffres g�n�r�s � date
 
-	if (nb_chiffre_genere % 2 != 0) { //si numero impair, ajoute 1 a ce dernier
-		nb_chiffre_genere++;
-	}
-	for (int i = nb_chiffre_genere ; i > 0 ; i--) {//assure de generer le bon nombre de numeros
+	/* Boucle pour le nb. de chiffres d�sir�s */
+	if (nb_ch % 2) nb_ch++;         //ce nombre doit absolument �tre PAIR!
+	while (i < nb_ch) {
+		//on g�n�re un chiffre alea. tant qu'il est pr�sent autour de la case [lig][col]
 		do {
-			chiffre = entier_aleatoire(1,9);//genere un numero aleatoire entre 1 et 9
-		} while (verifier_ch_voisins(grille, ligne, colone,chiffre) == 0);
+			chiffre = entier_aleatoire(1, 9);
+		} while (verifier_8_voisins(grille, lig, col, chiffre));
 
-		if (nbr_chiffres[chiffre] == 0) {
-			nbr_chiffres[POS_NB]++;
-		}
+		//si c'est la premi�re fois que l'on rencontre ce chiffre..
+		if (nbr_chiffres[chiffre] == 0)
+			nbr_chiffres[POS_NB]++;      //compter le nombre de chiffres distincts
 
-		nbr_chiffres[chiffre]++;
+		nbr_chiffres[chiffre]++;	//incr�menter le nb. de pr�sences de "chiffre" dans le jeu
+		grille[lig][col] = chiffre; //ajout du "chiffre" dans cette case
+		grille[lig][POS_NB]++;      //le nb. de chiffres sur cette ligne est incr�ment�
 
-		grille [ligne][colone] = chiffre;
-		grille [ligne][POS_NB]++;
-
-		INC_POS(ligne,colone);
-
-	for (int i = 1; 1 <= 9 ; i++) {
-		if (nbr_chiffres[i] == 0) {// si le chiffre i n'a pas ete genere
-			nbr_chiffres[POS_NB]++;
-			nbr_chiffres[i]++;
-			grille [ligne][colone] = i;//ajoute le numero i dans la case
-			grille [ligne][POS_NB]++;//augment compte numero sur la ligne
-			INC_POS(ligne,colone);
-
-
-		}
+		//incr�ment de la position lin�aire avec retour � la ligne suivante si n�cessaire
+		if (++i < nb_ch)  INC_POS(lig, col);
 	}
 
-	return ligne;
+	//reste-t'il des chiffres non-choisi (ils doivent tous �tre g�n�r� au moins UNE fois)?
+	if (nbr_chiffres[0] < 9) {
+		//trouver le(s) chiffre(s) non-g�n�r�(s)
+		for (int ch = 1; ch < 9; ch++)
+			if (nbr_chiffres[ch] == 0) {
+				nbr_chiffres[POS_NB]++; //incr�menter le nombre de chiffres distincts
+				nbr_chiffres[ch]++;		//incr�menter le nb. de pr�sences de ce chiffre
+				grille[lig][col] = ch;  //ajout du chiffre "ch" dans cette case
+				grille[lig][0]++;       //le nb. de chiffres sur cette ligne est incr�ment�
+
+				INC_POS(lig, col);      //incr�ment de la position lin�aire
+			}
+	}
+
+	return lig;	  //on retourne l'indice de la derni�re ligne avec au moins un chiffre
 }
 
 /*****************************************************************************/
 //permet de g�n�rer la liste de tous les coups (couples) possibles � jouer.
 int generer_listes_couples(const t_grille_nos grille, t_liste_couples liste) {   //*** SEM. 2
+	int lig = 0, col;   //la position actuelle dans la grille
 
+	/* On boucle tant que les lignes sont non-vides */
+	while (grille[lig][POS_NB]) {
+		//Pour les 9 colonnes de chiffres de cette ligne ([1] � [9])
+		for (col = 1; col < NB_COL; col++) {
+			//Si la case n'est pas vide, ajouter tous les couples possibles
+			if (grille[lig][col])
+				verifier_huit_dir(grille, lig, col, liste);
+		}
 
-	return 0;   //le nb. de couples g�n�r�s
+		lig++;   //passer � la ligne suivante
+	}
+
+	return nb_couples(liste);   //le nb. de couples g�n�r�s
 }
 
 /*****************************************************************************/
@@ -150,7 +206,7 @@ void ajouter_chiffres(t_grille_nos grille, t_tab_chiffres nbr_chiffres, int* der
 	double facteur = reel_aleatoire(MIN_NB_NEW, MAX_NB_NEW);   //facteur entre [1.0, 5.0]
 	int nb_ch = (int)(facteur * nbr_chiffres[POS_NB]);     //le nb. de chiffres � g�n�rer
 	int lig = *dern_lig, col;		//la ligne et colonne d'ajout
-	int i = 0;						//compteur du nb. de chiffres g�n�r�s � date		
+	int i = 0;						//compteur du nb. de chiffres g�n�r�s � date
 	int chiffre, prec = 0;			//le chiffre aleatoire et le chiffre pr�c�dent g�n�r�
 
 	/* localisation de la premi�re case vide suite aux chiffres pr�sents dans la grille */
@@ -164,7 +220,7 @@ void ajouter_chiffres(t_grille_nos grille, t_tab_chiffres nbr_chiffres, int* der
 		do {
 			chiffre = entier_aleatoire(1, 9);
 		} while (nbr_chiffres[chiffre] == 0 || chiffre == prec);
-			    
+
 		nbr_chiffres[chiffre]++;	//incr�menter le nb. de pr�sences de ce chiffre
 		grille[lig][col] = chiffre; //ajout du "chiffre" dans cette case
 		grille[lig][POS_NB]++;      //le nb. de chiffres sur cette ligne est incr�ment�
@@ -186,10 +242,10 @@ void ajouter_chiffres(t_grille_nos grille, t_tab_chiffres nbr_chiffres, int* der
 
 /*****************************************************************************/
 //permet de retirer la ligne vide [no_lig] de la grille des chiffres.
-//Les lignes suivantes seront toutes recopiée UNE ligne plus haut pour
+//Les lignes suivantes seront toutes recopi�e UNE ligne plus haut pour
 //remplir l'espace vide.
-void retirer_ligne(t_grille_nos grille, int no_lig) {						
-	int lig = no_lig;	//la ligne à retirer
+void retirer_ligne(t_grille_nos grille, int no_lig) {						//*** SEM. 2
+	int lig = no_lig;	//la ligne � retirer
 
 	do {
 		for (int col = 0; col < NB_COL; col++)
@@ -201,34 +257,34 @@ void retirer_ligne(t_grille_nos grille, int no_lig) {
 }
 
 /*****************************************************************************/
-//Permet d'effacer (mettre à zéro) la case "pos" de la grille de jeu.
-void effacer_chiffre(t_grille_nos grille, int pos) {						
-	grille[pos / 10][pos % 10] = 0; //avec conversions de la position-linéaire
+//Permet d'effacer (mettre � z�ro) la case "pos" de la grille de jeu.
+void effacer_chiffre(t_grille_nos grille, int pos) {						//*** SEM. 2
+	grille[pos / 10][pos % 10] = 0; //avec conversions de la position-lin�aire
 	grille[pos / 10][POS_NB]--;     //un chiffre de moins sur cette ligne
 }
 
 /*****************************************************************************/
-//Permet de retirer (mettre à zéro) le chiffre "ch" de la liste des chiffres dispos.
-int retirer_chiffre(int ch, t_tab_chiffres nbr_chiffres) {					
+//Permet de retirer (mettre � z�ro) le chiffre "ch" de la liste des chiffres dispos.
+int retirer_chiffre(int ch, t_tab_chiffres nbr_chiffres) {					//*** SEM. 2
 	/* on compte un chiffre de moins pour 'ch' dans la liste */
 	nbr_chiffres[ch]--;
 
-	/* si ce compteur tombe à zéro le chiffre est éliminé du jeu */
+	/* si ce compteur tombe � z�ro le chiffre est �limin� du jeu */
 	if (!nbr_chiffres[ch]) {
-		nbr_chiffres[POS_NB]--;   //un chiffre d'éliminé!
-		return ch;                //on retourne le chiffre qui vient d'être éliminé
+		nbr_chiffres[POS_NB]--;   //un chiffre d'�limin�!
+		return ch;                //on retourne le chiffre qui vient d'�tre �limin�
 	}
-	return 0;   //aucun chiffre a été éliminé
+	return 0;   //aucun chiffre a �t� �limin�
 }
 
 /*****************************************************************************/
-//Accesseur au chiffre se trouvant à la case "no_case" de la grille.
-int get_chiffre_case(const t_grille_nos grille, int no_case) {				
-	return grille[no_case / 10][no_case % 10];   //avec conversions de la position-linéaire
+//Accesseur au chiffre se trouvant � la case "no_case" de la grille.
+int get_chiffre_case(const t_grille_nos grille, int no_case) {				//*** SEM. 2
+	return grille[no_case / 10][no_case % 10];   //avec conversions de la position-lin�aire
 }
 
 /*****************************************************************************/
 //Accesseur au nb. de chiffres restants dans le jeu (la case [0] du tableau).
-int nb_chiffres_restants(const t_tab_chiffres nbr_chiffres) {				
+int nb_chiffres_restants(const t_tab_chiffres nbr_chiffres) {				//*** SEM. 2
 	return nbr_chiffres[POS_NB];
 }
