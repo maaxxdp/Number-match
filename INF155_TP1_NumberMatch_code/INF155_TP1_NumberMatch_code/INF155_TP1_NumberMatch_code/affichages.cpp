@@ -59,7 +59,6 @@ void afficher_infos_jeu(const t_tab_chiffres nbr_chiffres, int pts) {
 
 /*****************************************************************************/
 //Permet d'afficher la grille des chiffres
-void afficher_grille(const t_grille_nos grille, int dern_lig) {
     void afficher_grille(const t_grille_nos grille, int dern_lig) {
         int lig = 0, col;   //la position actuelle
 
@@ -83,7 +82,7 @@ void afficher_grille(const t_grille_nos grille, int dern_lig) {
                 else printf("  ");                     //ne pas afficher les cases vides (= 0)
         }
     }
-}
+
 
 /*****************************************************************************/
 //Permet d'afficher la suggestion de deux chiffres � choisir en BLEU pendant 5 secondes.

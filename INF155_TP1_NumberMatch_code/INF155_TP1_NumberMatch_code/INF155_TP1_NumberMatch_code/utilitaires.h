@@ -50,7 +50,6 @@ Retour: (entier) nombre al�atoire entre min et max.
 Sp�cifications: on pr�sume que la fonction "init_rand()" � �t� appell�e une fois
                 avant d'utiliser cette fonction.
 */
-int entier_aleatoire(int min, int max) {
-}
+int entier_aleatoire(int min, int max);
 
 #endif   //#if !UTILITAIRES_H
