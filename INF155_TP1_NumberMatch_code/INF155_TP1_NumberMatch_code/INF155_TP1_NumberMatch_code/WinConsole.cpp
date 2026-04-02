@@ -4,9 +4,9 @@
 //it basically says that you are running this program on Windows 2000 or higher
 #define _WIN32_WINNT 0x0500
 
-#include <windows.h>
-#include <time.h>        //necessary for the "clock()" function in "delay()" 
 #include "WinConsole.h"
+#include <time.h>        //necessary for the "clock()" function in "delay()" 
+#include <windows.h>
 
 static int color = 15;   //current text color, default = WHITE
 static int bkcolor = 0;  //current background color, default = BLACK
