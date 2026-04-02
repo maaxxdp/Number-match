@@ -162,17 +162,17 @@ int jouer_coup(t_grille_nos grille, int caseA, int caseB, t_tab_chiffres nbr_chi
     // Vérifier si les deux cases sont collees pour +1pts ou separee pour +4pts
     if (abs(caseA - caseB) == 1) {
         points += PTS_COUPLE_VOISIN;
-        mess_points("+1 point");
+        mess_points(PTS_COUPLE_VOISIN);
     } else {
         points += PTS_COUPLE_SEPARE;
-        mess_points("+4 points");
+        mess_points(PTS_COUPLE_SEPARE);
     }
 
     // Retirer le chiffre de la case A dans la liste des chiffres disponibles
         ch = get_chiffre_case(grille, caseA);
         elimine = retirer_chiffre(ch, nbr_chiffres);     
         if (elimine != 0) {
-            mess_points("Chiffre elimine !");
+            mess_points(1);
         }        
         effacer_chiffre(grille, caseA);
 
@@ -180,7 +180,7 @@ int jouer_coup(t_grille_nos grille, int caseA, int caseB, t_tab_chiffres nbr_chi
         ch = get_chiffre_case(grille, caseB);
         elimine = retirer_chiffre(ch, nbr_chiffres);       
         if (elimine != 0) {
-            mess_points("Chiffre elimine !");
+         int a;
         }      
         effacer_chiffre(grille, caseB);
     
@@ -211,7 +211,7 @@ int jouer_coup(t_grille_nos grille, int caseA, int caseB, t_tab_chiffres nbr_chi
 
     // Si des lignes ont ete retiree, on affiche un message.
     if (pts_lignes > 0) {
-        mess_points("Bonus lignes !");
+        mess_points(PTS_LIGNE_RETIREE);
     }
     return points + pts_lignes; //on retourne les points obtenus
 }

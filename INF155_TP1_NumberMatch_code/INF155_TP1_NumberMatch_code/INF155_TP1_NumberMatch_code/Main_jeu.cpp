@@ -57,7 +57,7 @@ int main(void) {
 
 				case CODE_AIDE:     //code "??" = suggestion d'un coup possible
 									choix_couple_alea(liste, &caseA, &caseB); 
-					                afficher_choix_alea(grille, caseA, caseB);
+					               // afficher_choix_alea(grille, caseA, caseB);
 					                break;
 
 				case CODE_CHIFFRES: //code "++" = ajout de nouveaux chiffres alea.
